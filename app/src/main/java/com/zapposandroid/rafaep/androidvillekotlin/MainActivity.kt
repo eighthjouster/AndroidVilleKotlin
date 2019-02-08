@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     var nextHouseId = 1
     var selectedHouseName: TextView? = null
 
-    private var villeMap: VilleMap? = null
+    var villeMap: VilleMap? = null
     private var addEditButton: Button? = null
     private var deleteButton: Button? = null
     private var addEditDialogButton: Button? = null
@@ -98,8 +98,6 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         mainApp?.getAllHouses()
     }
-
-    fun getVilleMap() = villeMap
 
     fun addEditHouseBtnClick(v: View) {
         if (houseEditMode && villeMap?.selectedHouse != null) {

@@ -29,7 +29,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     private var houses: List<AVHouse>? = null
 
-    private var isScrolling: Boolean = false
+    var isScrolling: Boolean = false
 
     var selectedSpotX = -1
     var selectedSpotY= -1
@@ -48,8 +48,8 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
         mTextPaint?.color = ContextCompat.getColor(context, R.color.white)
 
         mGridPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        mGridPaint?.color = ContextCompat.getColor(, context, R.color.yellow)
-        mGridPaint?.strokeWidth = 2
+        mGridPaint?.color = ContextCompat.getColor(context, R.color.yellow)
+        mGridPaint?.strokeWidth = 2f
 
         houseBitmap = BitmapFactory.decodeResource(resources, R.drawable.house_icon)
         houseSelectedBitmap = BitmapFactory.decodeResource(resources, R.drawable.house_selected_icon)
@@ -59,9 +59,9 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     }
 
-    fun setMainApp(mainApp: MainApp ) {
+    fun setMainApp(mainApp: MainApp?) {
         this.mainApp = mainApp
-        this.txtHouseName = mainApp.mainActivity.findViewById(R.id.txt_house_name)
+        this.txtHouseName = mainApp?.storedMainActivity?.findViewById(R.id.txt_house_name)
     }
 
     fun getVilleName() = mVilleName
@@ -155,7 +155,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
                             }
                         }
 
-                        mainApp.mainActivity.setHouseEditMode(houseSelected)
+                        mainApp?.storedMainActivity?.setHouseEditMode(houseSelected)
 
                         invalidate()
                     }

@@ -1,14 +1,11 @@
-@file:Suppress("RedundantOverride")
-
-package com.pachesoft.androidville
+package com.zapposandroid.rafaep.androidvillekotlin
 
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
-import com.zapposandroid.rafaep.androidvillekotlin.MainActivity
-import com.zapposandroid.rafaep.androidvillekotlin.VilleMap
+import com.pachesoft.androidville.R
 
 class VScroll(context: Context, attrs: AttributeSet?, defStyle: Int) : ScrollView(context, attrs, defStyle) {
     private var mx: Float = 0F
@@ -30,9 +27,7 @@ class VScroll(context: Context, attrs: AttributeSet?, defStyle: Int) : ScrollVie
         villeMap = mainActivity.villeMap
     }
 
-    override fun performClick() : Boolean {
-        return super.performClick()
-    }
+    override fun performClick() : Boolean = super.performClick()
 
     override fun onTouchEvent(event: MotionEvent) : Boolean {
         when (event.action) {
