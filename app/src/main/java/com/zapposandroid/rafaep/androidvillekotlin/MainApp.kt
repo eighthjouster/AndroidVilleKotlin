@@ -5,10 +5,9 @@ import android.app.Application
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import java.lang.reflect.Array
 
 class MainApp : Application() {
-    var mainActivity: MainActivity = null;
+    var storedMainActivity: MainActivity = null;
     var serverComm: ServerCommService = null;
     var houseToHighlight = -1;
 
@@ -27,17 +26,17 @@ class MainApp : Application() {
         serverComm.getAllHouses(Callback {
             override fun onResponse(call: Call<ArrayList<AVHouse>>, response: Response<ArrayList<AVHouse>>) {
                 val houses = response.body();
-                mainActivity.getVilleMap().setHouses(houses);
+                storedMainActivity.getVilleMap()?.setHouses(houses);
                 if (houseToHighlight != -1) {
-                    mainActivity.getVilleMap().highlightHouse(houseToHighlight);
+                    storedMainActivity.getVilleMap()?.highlightHouse(houseToHighlight);
                     houseToHighlight = -1;
                 }
 
                 val houseSize: Int = houses?.size ?: 0
                 for (i in 0..houseSize) {
                   val house: AVHouse? = houses?.get(i)
-                  if (mainActivity.nextHouseId <= house?.id) {
-                      mainActivity.nextHouseId = house?.id + 1;
+                  if (storedMainActivity.nextHouseId <= house?.id) {
+                      storedMainActivity.nextHouseId = house?.id + 1;
                   }
                 }
             }
@@ -50,8 +49,8 @@ class MainApp : Application() {
     }
 
     fun setMainActivity(mainActivity: MainActivity) {
-        this.mainActivity = mainActivity;
-        this.mainActivity.getVilleMap().setMainApp(this);
-        this.mainActivity.vScroll.setMainActivity(mainActivity);
+        this.storedMainActivity = mainActivity;
+        this.storedMainActivity.getVilleMap()?.setMainApp(this);
+        this.storedMainActivity.vScroll?.setMainActivity(mainActivity);
     }
 }
