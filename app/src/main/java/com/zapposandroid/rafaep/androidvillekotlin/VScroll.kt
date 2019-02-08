@@ -7,6 +7,8 @@ import android.widget.ScrollView
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
+import com.zapposandroid.rafaep.androidvillekotlin.MainActivity
+import com.zapposandroid.rafaep.androidvillekotlin.VilleMap
 
 class VScroll(context: Context, attrs: AttributeSet?, defStyle: Int) : ScrollView(context, attrs, defStyle) {
     private var mx: Float = 0F
