@@ -12,8 +12,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import com.pachesoft.androidville.R
-import com.pachesoft.androidville.VScroll
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -56,7 +54,7 @@ class MainActivity : AppCompatActivity() {
 
         slideUpAnimation = AnimatorInflater.loadAnimator(this,
         R.animator.slide_up) as AnimatorSet
-        slideUpAnimation?.addListener(Animator.AnimatorListener {
+        slideUpAnimation?.addListener(object: Animator.AnimatorListener {
             override fun onAnimationStart(animator: Animator) {
             }
             override fun onAnimationEnd(animator: Animator) {
@@ -75,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         slideDownAnimation = AnimatorInflater.loadAnimator(this,
         R.animator.slide_down) as AnimatorSet
-        slideDownAnimation?.addListener(Animator.AnimatorListener {
+        slideDownAnimation?.addListener(object: Animator.AnimatorListener {
             override fun onAnimationStart(animator: Animator) {
             }
             override fun onAnimationEnd(animator: Animator) {
@@ -84,7 +82,7 @@ class MainActivity : AppCompatActivity() {
             }
             override fun onAnimationCancel(animator: Animator) {
             }
-            override fun void onAnimationRepeat(animator: Animator) {
+            override fun onAnimationRepeat(animator: Animator) {
             }
         })
         slideDownAnimation?.setTarget(dialogLayout)
@@ -112,25 +110,25 @@ class MainActivity : AppCompatActivity() {
             val selectedSpotX = villeMap?.selectedHouse?.address?.x
             val selectedSpotY = villeMap?.selectedHouse?.address?.y
             villeMap?.selectedSpotY = -1
-            mainApp?.serverComm?.deleteHouse(villeMap?.selectedHouse, Callback<AVHouse> {
+            mainApp?.serverComm?.deleteHouse(villeMap?.selectedHouse as AVHouse, object: Callback<AVHouse> {
                 override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
                     houseDialogTextField?.setText("")
                     selectedHouseName?.setText("")
                     villeMap?.selectedHouse = null
-                    villeMap?.selectedSpotX = selectedSpotX
-                    villeMap?.selectedSpotY = selectedSpotY
+                    villeMap?.selectedSpotX = selectedSpotX ?: 0
+                    villeMap?.selectedSpotY = selectedSpotY ?: 0
                     setHouseEditMode(false)
                     mainApp?.getAllHouses()
                 }
 
-                override onFailure(call: Call<AVHouse>, t: Throwable) {
+                override fun onFailure(call: Call<AVHouse>, t: Throwable) {
                     selectedHouseName?.setText("** Operation failed **")
                 }
             })
         }
     }
 
-    fun onDismissHouseDialogBtnClick(v: View) {
+    fun onDismissHouseDialogBtnClick(v: View?) {
         dismissSoftKeyboard()
         cancelDialogButton?.setVisibility(View.INVISIBLE)
         slideDownAnimation?.start()
@@ -141,9 +139,9 @@ class MainActivity : AppCompatActivity() {
         if ("" != houseName) {
             if (villeMap?.selectedHouse == null) {
                 val houseId = nextHouseId++
-                newHouse: AVHouse = AVHouse(houseId, houseName, new AVAddress(villeMap.selectedSpotX, villeMap.selectedSpotY))
+                val newHouse = AVHouse(houseId, houseName, AVAddress(villeMap?.selectedSpotX ?: 0, villeMap?.selectedSpotY ?: 0), false)
 
-                mainApp?.serverComm?.addHouse(newHouse, Callback<AVHouse> {
+                mainApp?.serverComm?.addHouse(newHouse, object: Callback<AVHouse> {
                     override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
                         dismissSoftKeyboard()
                         cancelDialogButton?.setVisibility(View.INVISIBLE)
@@ -163,21 +161,23 @@ class MainActivity : AppCompatActivity() {
             }
             else {
                 var editHouse = villeMap?.selectedHouse
-                editHouse?.name = houseName
+                if (editHouse != null) {
+                    editHouse?.name = houseName
 
-                mainApp?.serverComm?.updateHouse(editHouse, Callback<AVHouse> {
-                    override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
-                        System.out.println(response?.message())
-                        dismissSoftKeyboard()
-                        slideDownAnimation?.start()
-                        houseDialogTextField?.setText("")
-                        selectedHouseName?.setText(houseName)
-                    }
+                    mainApp?.serverComm?.updateHouse(editHouse, object: Callback<AVHouse> {
+                        override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
+                            System.out.println(response?.message())
+                            dismissSoftKeyboard()
+                            slideDownAnimation?.start()
+                            houseDialogTextField?.setText("")
+                            selectedHouseName?.setText(houseName)
+                        }
 
-                    override fun onFailure(call: Call<AVHouse>, t: Throwable) {
-                        selectedHouseName?.setText("** Operation failed **")
-                    }
-                })
+                        override fun onFailure(call: Call<AVHouse>, t: Throwable) {
+                            selectedHouseName?.setText("** Operation failed **")
+                        }
+                    })
+                }
             }
         }
     }

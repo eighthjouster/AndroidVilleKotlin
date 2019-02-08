@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.pachesoft.androidville.VScroll
+    <com.zapposandroid.rafaep.androidvillekotlin.VScroll
         android:id="@+id/vScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,19 +17,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="80dp">
 
-        <com.pachesoft.androidville.HScroll
+        <com.zapposandroid.rafaep.androidvillekotlin.HScroll
             android:id="@+id/hScroll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <com.pachesoft.androidville.VilleMap
+            <com.zapposandroid.rafaep.androidvillekotlin.VilleMap
                 android:id="@+id/mainVilleMap"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="addHouseBtnClick"
                 app:villeName="Village Name here!" />
-        </com.pachesoft.androidville.HScroll>
-    </com.pachesoft.androidville.VScroll>
+        </com.zapposandroid.rafaep.androidvillekotlin.HScroll>
+    </com.zapposandroid.rafaep.androidvillekotlin.VScroll>
 
     <TextView
         android:id="@+id/txt_house_name"

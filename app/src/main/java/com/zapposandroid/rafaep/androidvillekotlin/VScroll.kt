@@ -5,7 +5,6 @@ import android.widget.ScrollView
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
-import com.pachesoft.androidville.R
 
 class VScroll(context: Context, attrs: AttributeSet?, defStyle: Int) : ScrollView(context, attrs, defStyle) {
     private var mx: Float = 0F

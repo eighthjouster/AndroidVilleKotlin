@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
-import com.pachesoft.androidville.R
 
 class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private var mainApp: MainApp? = null
@@ -207,7 +206,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
     }
 
-    fun setHouses(houses: List<AVHouse>) {
+    fun setHouses(houses: List<AVHouse>?) {
         this.houses = houses
         this.invalidate()
     }

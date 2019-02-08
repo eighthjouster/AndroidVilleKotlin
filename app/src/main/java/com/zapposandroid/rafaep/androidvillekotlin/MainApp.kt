@@ -23,20 +23,20 @@ class MainApp : Application() {
     }
 
     fun getAllHouses() {
-        serverComm.getAllHouses(Callback {
+        serverComm?.getAllHouses(object: Callback<ArrayList<AVHouse>> {
             override fun onResponse(call: Call<ArrayList<AVHouse>>, response: Response<ArrayList<AVHouse>>) {
                 val houses = response.body()
-                storedMainActivity.getVilleMap()?.setHouses(houses)
+                storedMainActivity?.villeMap?.setHouses(houses)
                 if (houseToHighlight != -1) {
-                    storedMainActivity.getVilleMap()?.highlightHouse(houseToHighlight)
+                    storedMainActivity?.villeMap?.highlightHouse(houseToHighlight)
                     houseToHighlight = -1
                 }
 
                 val houseSize: Int = houses?.size ?: 0
                 for (i in 0..houseSize) {
                   val house: AVHouse? = houses?.get(i)
-                  if (storedMainActivity.nextHouseId <= house?.id) {
-                      storedMainActivity.nextHouseId = house?.id + 1
+                  if (house?.id != null && storedMainActivity?.nextHouseId != null && storedMainActivity?.nextHouseId as Int <= house?.id) {
+                      storedMainActivity?.nextHouseId = house?.id + 1
                   }
                 }
             }
@@ -50,7 +50,7 @@ class MainApp : Application() {
 
     fun setMainActivity(mainActivity: MainActivity) {
         this.storedMainActivity = mainActivity
-        this.storedMainActivity.getVilleMap()?.setMainApp(this)
-        this.storedMainActivity.vScroll?.setMainActivity(mainActivity)
+        this.storedMainActivity?.villeMap?.setMainApp(this)
+        this.storedMainActivity?.vScroll?.setMainActivity(mainActivity)
     }
 }
