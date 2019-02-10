@@ -10,8 +10,9 @@ import android.view.View
 import android.widget.TextView
 
 class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
-    private var mainApp: MainApp? = null
-    private var txtHouseName: TextView? = null
+    var txtHouseName: TextView? = null
+    var houseActions: HouseActions? = null
+
 
     private var mVilleName = ""
 
@@ -56,11 +57,6 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
         houseBitmapSize = RectF(0f, 0f, 100f, 100f)
 
-    }
-
-    fun setMainApp(mainApp: MainApp?) {
-        this.mainApp = mainApp
-        this.txtHouseName = mainApp?.storedMainActivity?.findViewById(R.id.txt_house_name)
     }
 
     fun getVilleName() = mVilleName
@@ -154,7 +150,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
                             }
                         }
 
-                        mainApp?.storedMainActivity?.setHouseEditMode(houseSelected)
+                        houseActions?.setHouseEditMode(houseSelected)
 
                         invalidate()
                     }
@@ -171,17 +167,17 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawColor(ContextCompat.getColor(context, R.color.darkGreen))
+        canvas.drawColor(ContextCompat.getColor(context, R.color.darkBlue))
 
         canvas.drawText(mVilleName, 0f, 100f, mTextPaint)
 
         for (i in 0..3600 step 100) {
-        canvas.drawLine(0f, i.toFloat(), 2400f, i.toFloat(), mGridPaint)
-    }
+            canvas.drawLine(0f, i.toFloat(), 2400f, i.toFloat(), mGridPaint)
+        }
 
         for (i in 0..2400 step 100) {
-        canvas.drawLine(i.toFloat(), 0f, i.toFloat(), 3600f, mGridPaint)
-    }
+            canvas.drawLine(i.toFloat(), 0f, i.toFloat(), 3600f, mGridPaint)
+        }
 
         if (houses != null) {
             val allHouses: List<AVHouse> = houses.orEmpty()
@@ -210,10 +206,4 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
         this.houses = houses
         this.invalidate()
     }
-
-    fun setIsScrolling(isScrolling: Boolean) {
-        this.isScrolling = isScrolling
-    }
-
-    fun getIsScrolling() = this.isScrolling
 }

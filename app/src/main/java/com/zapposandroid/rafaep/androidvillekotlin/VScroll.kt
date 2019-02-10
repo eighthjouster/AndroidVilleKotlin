@@ -10,8 +10,7 @@ class VScroll(context: Context, attrs: AttributeSet?, defStyle: Int) : ScrollVie
     private var mx: Float = 0F
     private var my: Float = 0F
     var hScroll: HorizontalScrollView? = null
-    private var villeMap: VilleMap? = null
-    private var mainActivity: MainActivity? = null
+    var villeMap: VilleMap? = null
 
     init {
     }
@@ -19,12 +18,6 @@ class VScroll(context: Context, attrs: AttributeSet?, defStyle: Int) : ScrollVie
     constructor(context: Context, attrs: AttributeSet) : this(context, attrs, 0)
 
     constructor(context: Context) : this(context, null, 0)
-
-    fun setMainActivity(mainActivity : MainActivity) {
-        this.mainActivity = mainActivity
-        hScroll = mainActivity.findViewById(R.id.hScroll)
-        villeMap = mainActivity.villeMap
-    }
 
     override fun performClick() : Boolean = super.performClick()
 

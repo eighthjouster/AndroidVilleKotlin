@@ -16,8 +16,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MainActivity : AppCompatActivity() {
-    private var mainApp: MainApp? = null
+class MainActivity : HouseActions, AppCompatActivity() {
     private var houseDialogTextField: EditText? = null
 
     var vScroll: VScroll? = null
@@ -34,12 +33,19 @@ class MainActivity : AppCompatActivity() {
     private var slideDownAnimation: AnimatorSet? = null
     private var houseEditMode = false
 
+    var serverComm: ServerCommService? = null
+    var houseToHighlight = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        serverComm = ServerCommService()
+
         setContentView(R.layout.activity_main)
 
         vScroll = findViewById(R.id.vScroll)
         villeMap = findViewById(R.id.mainVilleMap)
+        villeMap?.txtHouseName = findViewById(R.id.txt_house_name)
+        villeMap?.houseActions = this
         dialogLayout = findViewById(R.id.ll_house_dialog)
         houseDialogTextField = findViewById(R.id.txt_input_house_name)
         addEditButton = findViewById(R.id.btn_add_house)
@@ -48,9 +54,8 @@ class MainActivity : AppCompatActivity() {
         cancelDialogButton = findViewById(R.id.cancel_button)
         selectedHouseName = findViewById(R.id.txt_house_name)
 
-
-        mainApp = application as MainApp
-        mainApp?.setMainActivity(this)
+        vScroll?.hScroll = findViewById(R.id.hScroll)
+        vScroll?.villeMap = villeMap
 
         slideUpAnimation = AnimatorInflater.loadAnimator(this,
         R.animator.slide_up) as AnimatorSet
@@ -94,7 +99,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        mainApp?.getAllHouses()
+        retrieveMapData()
     }
 
     fun addEditHouseBtnClick(v: View) {
@@ -110,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             val selectedSpotX = villeMap?.selectedHouse?.address?.x
             val selectedSpotY = villeMap?.selectedHouse?.address?.y
             villeMap?.selectedSpotY = -1
-            mainApp?.serverComm?.deleteHouse(villeMap?.selectedHouse as AVHouse, object: Callback<AVHouse> {
+            serverComm?.deleteHouse(villeMap?.selectedHouse as AVHouse, object: Callback<AVHouse> {
                 override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
                     houseDialogTextField?.setText("")
                     selectedHouseName?.setText("")
@@ -118,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                     villeMap?.selectedSpotX = selectedSpotX ?: 0
                     villeMap?.selectedSpotY = selectedSpotY ?: 0
                     setHouseEditMode(false)
-                    mainApp?.getAllHouses()
+                    retrieveMapData()
                 }
 
                 override fun onFailure(call: Call<AVHouse>, t: Throwable) {
@@ -141,13 +146,13 @@ class MainActivity : AppCompatActivity() {
                 val houseId = nextHouseId++
                 val newHouse = AVHouse(houseId, houseName, AVAddress(villeMap?.selectedSpotX ?: 0, villeMap?.selectedSpotY ?: 0), false)
 
-                mainApp?.serverComm?.addHouse(newHouse, object: Callback<AVHouse> {
+                serverComm?.addHouse(newHouse, object: Callback<AVHouse> {
                     override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
                         dismissSoftKeyboard()
                         cancelDialogButton?.setVisibility(View.INVISIBLE)
                         slideDownAnimation?.start()
                         houseDialogTextField?.setText("")
-                        mainApp?.getAllHouses(houseId)
+                        retrieveMapData(houseId)
                         selectedHouseName?.text = houseName
                         villeMap?.selectedSpotX = -1
                         villeMap?.selectedSpotY = -1
@@ -164,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                 if (editHouse != null) {
                     editHouse?.name = houseName
 
-                    mainApp?.serverComm?.updateHouse(editHouse, object: Callback<AVHouse> {
+                    serverComm?.updateHouse(editHouse, object: Callback<AVHouse> {
                         override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
                             System.out.println(response?.message())
                             dismissSoftKeyboard()
@@ -192,7 +197,7 @@ class MainActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0)
     }
 
-    fun setHouseEditMode(editMode: Boolean) {
+    override fun setHouseEditMode(editMode: Boolean) {
         houseEditMode = editMode
 
         if (houseEditMode) {
@@ -216,4 +221,39 @@ class MainActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
+    fun retrieveMapData(houseToHighlight: Int) {
+        this.houseToHighlight = houseToHighlight
+        retrieveMapData()
+    }
+
+    fun retrieveMapData() {
+        serverComm?.getAllHouses(object: Callback<ArrayList<AVHouse>> {
+            override fun onResponse(call: Call<ArrayList<AVHouse>>, response: Response<ArrayList<AVHouse>>) {
+                val houses = response.body()
+                villeMap?.setHouses(houses)
+                if (houseToHighlight != -1) {
+                    villeMap?.highlightHouse(houseToHighlight)
+                    houseToHighlight = -1
+                }
+
+                val houseSize: Int = houses?.size ?: 0
+                for (i in 0 until houseSize) {
+                    val house: AVHouse? = houses?.get(i)
+                    if (house?.id != null && nextHouseId != null && nextHouseId as Int <= house?.id) {
+                        nextHouseId = house?.id + 1
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ArrayList<AVHouse>>, throwable: Throwable) {
+                System.out.println(throwable)
+            }
+        })
+    }
+
+}
+
+interface HouseActions {
+    fun setHouseEditMode(editMode: Boolean)
 }
