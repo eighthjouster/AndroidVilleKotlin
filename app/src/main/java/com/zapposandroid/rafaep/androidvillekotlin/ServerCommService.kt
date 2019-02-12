@@ -1,41 +1,51 @@
 package com.zapposandroid.rafaep.androidvillekotlin
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import java.util.ArrayList
 
 import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
-class ServerCommService
-{
-    var service: AndroidvilleAPIService? = null
+class ServerCommService : SafeApiCall() {
+    private var service: AndroidvilleAPIService? = null
 
     init {
         val retrofit = Retrofit.Builder()
         //.baseUrl("http://10.0.2.2:3010") // Emulator's host machine (localhost parent.)
         .baseUrl("http://androidville.rppalencia.com")
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(MoshiConverterFactory.create())
+        .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .build()
         service = retrofit.create(AndroidvilleAPIService::class.java)
     }
 
-    fun getAllHouses(responseHandler: Callback<ArrayList<AVHouse>>) {
-        val callAsync = service?.getAVHouses()
-        callAsync?.enqueue(responseHandler)
+    suspend fun getAllHouses(): AVHouseList? {
+        return safeCall(
+            call = { service?.getAVHousesAsync()?.await() },
+            errorMessage = "Error fetching all houses"
+        )
     }
 
-    fun addHouse(house: AVHouse, responseHandler: Callback<AVHouse>) {
-      val callAsync = service?.postAVHouse(house)
-      callAsync?.enqueue(responseHandler)
+    suspend fun addHouse(house: AVHouse): AVHouse? {
+        return safeCall(
+            call = { service?.postAVHouseAsync(house)?.await() },
+            errorMessage = "Error fetching house"
+        )
     }
 
-    fun updateHouse(house: AVHouse, responseHandler: Callback<AVHouse>) {
-      val callAsync = service?.putAVHouse(house.id, house)
-      callAsync?.enqueue(responseHandler)
+    suspend fun updateHouse(house: AVHouse): AVHouse? {
+        return safeCall(
+            call = { service?.postAVHouseAsync(house)?.await() },
+            errorMessage = "Error updating house"
+        )
     }
 
-    fun deleteHouse(house: AVHouse, responseHandler: Callback<AVHouse>) {
-        val callAsync = service?.deleteAVHouse(house.id)
-        callAsync?.enqueue(responseHandler)
+    suspend fun deleteHouse(house: AVHouse): AVHouse? {
+        return safeCall(
+            call = { service?.deleteAVHouseAsync(house.id)?.await() },
+            errorMessage = "Error deleting house"
+        )
     }
 }

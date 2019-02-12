@@ -12,6 +12,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -115,21 +118,21 @@ class MainActivity : HouseActions, AppCompatActivity() {
             val selectedSpotX = villeMap?.selectedHouse?.address?.x
             val selectedSpotY = villeMap?.selectedHouse?.address?.y
             villeMap?.selectedSpotY = -1
-            serverComm?.deleteHouse(villeMap?.selectedHouse as AVHouse, object: Callback<AVHouse> {
-                override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
-                    houseDialogTextField?.setText("")
-                    selectedHouseName?.setText("")
-                    villeMap?.selectedHouse = null
-                    villeMap?.selectedSpotX = selectedSpotX ?: 0
-                    villeMap?.selectedSpotY = selectedSpotY ?: 0
-                    setHouseEditMode(false)
-                    retrieveMapData()
-                }
+            GlobalScope.launch(Dispatchers.Main) {
+                serverComm?.deleteHouse(villeMap?.selectedHouse as AVHouse)
+                houseDialogTextField?.setText("")
+                selectedHouseName?.setText("")
+                villeMap?.selectedHouse = null
+                villeMap?.selectedSpotX = selectedSpotX ?: 0
+                villeMap?.selectedSpotY = selectedSpotY ?: 0
+                setHouseEditMode(false)
+                retrieveMapData()
 
-                override fun onFailure(call: Call<AVHouse>, t: Throwable) {
-                    selectedHouseName?.setText("** Operation failed **")
-                }
-            })
+//__RP                override fun onFailure(call: Call<AVHouse>, t: Throwable) {
+//                    selectedHouseName?.setText("** Operation failed **")
+//                }
+
+            }
         }
     }
 
@@ -146,42 +149,41 @@ class MainActivity : HouseActions, AppCompatActivity() {
                 val houseId = nextHouseId++
                 val newHouse = AVHouse(houseId, houseName, AVAddress(villeMap?.selectedSpotX ?: 0, villeMap?.selectedSpotY ?: 0), false)
 
-                serverComm?.addHouse(newHouse, object: Callback<AVHouse> {
-                    override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
-                        dismissSoftKeyboard()
-                        cancelDialogButton?.setVisibility(View.INVISIBLE)
-                        slideDownAnimation?.start()
-                        houseDialogTextField?.setText("")
-                        retrieveMapData(houseId)
-                        selectedHouseName?.text = houseName
-                        villeMap?.selectedSpotX = -1
-                        villeMap?.selectedSpotY = -1
-                        setHouseEditMode(true)
-                    }
+                GlobalScope.launch(Dispatchers.Main) {
+                    serverComm?.addHouse(newHouse)
 
-                    override fun onFailure(call: Call<AVHouse>, t: Throwable) {
-                        selectedHouseName?.setText("** Operation failed **")
-                    }
-                })
+                    dismissSoftKeyboard()
+                    cancelDialogButton?.setVisibility(View.INVISIBLE)
+                    slideDownAnimation?.start()
+                    houseDialogTextField?.setText("")
+                    retrieveMapData(houseId)
+                    selectedHouseName?.text = houseName
+                    villeMap?.selectedSpotX = -1
+                    villeMap?.selectedSpotY = -1
+                    setHouseEditMode(true)
+
+//__RP                    override fun onFailure(call: Call<AVHouse>, t: Throwable) {
+//                        selectedHouseName?.setText("** Operation failed **")
+//                    }
+                }
             }
             else {
                 var editHouse = villeMap?.selectedHouse
                 if (editHouse != null) {
                     editHouse?.name = houseName
 
-                    serverComm?.updateHouse(editHouse, object: Callback<AVHouse> {
-                        override fun onResponse(call: Call<AVHouse>, response: Response<AVHouse>) {
-                            System.out.println(response?.message())
+                    GlobalScope.launch(Dispatchers.Main) {
+                        val response = serverComm?.updateHouse(editHouse)
+                            //System.out.println(response?.message()) //__RP
                             dismissSoftKeyboard()
                             slideDownAnimation?.start()
                             houseDialogTextField?.setText("")
                             selectedHouseName?.setText(houseName)
-                        }
 
-                        override fun onFailure(call: Call<AVHouse>, t: Throwable) {
-                            selectedHouseName?.setText("** Operation failed **")
-                        }
-                    })
+//__RP                        override fun onFailure(call: Call<AVHouse>, t: Throwable) {
+//                            selectedHouseName?.setText("** Operation failed **")
+//                        }
+                    }
                 }
             }
         }
@@ -228,28 +230,22 @@ class MainActivity : HouseActions, AppCompatActivity() {
     }
 
     fun retrieveMapData() {
-        serverComm?.getAllHouses(object: Callback<ArrayList<AVHouse>> {
-            override fun onResponse(call: Call<ArrayList<AVHouse>>, response: Response<ArrayList<AVHouse>>) {
-                val houses = response.body()
-                villeMap?.setHouses(houses)
-                if (houseToHighlight != -1) {
-                    villeMap?.highlightHouse(houseToHighlight)
-                    houseToHighlight = -1
-                }
-
-                val houseSize: Int = houses?.size ?: 0
-                for (i in 0 until houseSize) {
-                    val house: AVHouse? = houses?.get(i)
-                    if (house?.id != null && nextHouseId != null && nextHouseId as Int <= house?.id) {
-                        nextHouseId = house?.id + 1
-                    }
-                }
+        GlobalScope.launch(Dispatchers.Main) {
+            val houses = serverComm?.getAllHouses()
+            villeMap?.setHouses(houses)
+            if (houseToHighlight != -1) {
+                villeMap?.highlightHouse(houseToHighlight)
+                houseToHighlight = -1
             }
 
-            override fun onFailure(call: Call<ArrayList<AVHouse>>, throwable: Throwable) {
-                System.out.println(throwable)
+            val houseSize: Int = houses?.list?.size ?: 0
+            for (i in 0 until houseSize) {
+                val house: AVHouse? = houses?.list?.get(i)
+                if (house?.id != null && nextHouseId != null && nextHouseId as Int <= house?.id) {
+                    nextHouseId = house?.id + 1
+                }
             }
-        })
+        }
     }
 
 }

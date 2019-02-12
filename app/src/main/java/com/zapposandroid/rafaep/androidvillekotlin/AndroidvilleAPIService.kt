@@ -1,7 +1,9 @@
 package com.zapposandroid.rafaep.androidvillekotlin
 
+import kotlinx.coroutines.Deferred
 import java.util.ArrayList
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -11,17 +13,17 @@ import retrofit2.http.Path
 
 interface AndroidvilleAPIService {
     @GET("/city")
-    fun getAVCity(): Call<AVCity>
+    fun getAVCityAsync(): Deferred<Response<AVCity>>
 
     @GET("/houses")
-    fun getAVHouses(): Call<ArrayList<AVHouse>>
+    fun getAVHousesAsync(): Deferred<Response<AVHouseList>>
 
     @POST("/houses")
-    fun postAVHouse(@Body house: AVHouse): Call<AVHouse>
+    fun postAVHouseAsync(@Body house: AVHouse): Deferred<Response<AVHouse>>
 
     @PUT("/houses/{id}")
-    fun putAVHouse(@Path("id") id: Int, @Body house: AVHouse): Call<AVHouse>
+    fun putAVHouseAsync(@Path("id") id: Int, @Body house: AVHouse): Deferred<Response<AVHouse>>
 
     @DELETE("/houses/{id}")
-    fun deleteAVHouse(@Path("id") id: Int): Call<AVHouse>
+    fun deleteAVHouseAsync(@Path("id") id: Int): Deferred<Response<AVHouse>>
 }

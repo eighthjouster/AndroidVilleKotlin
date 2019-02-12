@@ -27,7 +27,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     var selectedHouse: AVHouse? = null
 
-    private var houses: List<AVHouse>? = null
+    private var houses: AVHouseList? = null
 
     var isScrolling: Boolean = false
 
@@ -75,7 +75,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
             doInvalidate = true
         }
 
-        val allHouses: List<AVHouse> = houses.orEmpty()
+        val allHouses = houses?.list.orEmpty()
         for (house in allHouses) {
           if (house.id == houseId) {
             selectedHouse = house
@@ -120,7 +120,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
                                 selectedHouse?.selected = false
                                 selectedHouse = null
                             }
-                            val allHouses: List<AVHouse> = houses.orEmpty()
+                            val allHouses = houses?.list.orEmpty()
                             for (house in allHouses) {
                                 if ((house.address.x == x) && (house.address.y == y)) {
                                     selectedHouse = house
@@ -180,7 +180,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
 
         if (houses != null) {
-            val allHouses: List<AVHouse> = houses.orEmpty()
+            val allHouses = houses?.list.orEmpty()
             for (house in allHouses) {
                 canvas.save()
                 canvas.translate((house.address.x * 100).toFloat(),(house.address.y * 100).toFloat())
@@ -202,7 +202,7 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
     }
 
-    fun setHouses(houses: List<AVHouse>?) {
+    fun setHouses(houses: AVHouseList?) {
         this.houses = houses
         this.invalidate()
     }
