@@ -238,9 +238,9 @@ class MainActivity : HouseActions, AppCompatActivity() {
                 houseToHighlight = -1
             }
 
-            val houseSize: Int = houses?.list?.size ?: 0
+            val houseSize: Int = houses?.size ?: 0
             for (i in 0 until houseSize) {
-                val house: AVHouse? = houses?.list?.get(i)
+                val house: AVHouse? = houses?.get(i)
                 if (house?.id != null && nextHouseId != null && nextHouseId as Int <= house?.id) {
                     nextHouseId = house?.id + 1
                 }

@@ -1,10 +1,6 @@
 package com.zapposandroid.rafaep.androidvillekotlin
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import java.util.ArrayList
-
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
@@ -21,7 +17,7 @@ class ServerCommService : SafeApiCall() {
         service = retrofit.create(AndroidvilleAPIService::class.java)
     }
 
-    suspend fun getAllHouses(): AVHouseList? {
+    suspend fun getAllHouses(): List<AVHouse>? {
         return safeCall(
             call = { service?.getAVHousesAsync()?.await() },
             errorMessage = "Error fetching all houses"
