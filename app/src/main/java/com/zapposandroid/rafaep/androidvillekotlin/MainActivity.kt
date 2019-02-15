@@ -127,11 +127,6 @@ class MainActivity : HouseActions, AppCompatActivity() {
                 villeMap?.selectedSpotY = selectedSpotY ?: 0
                 setHouseEditMode(false)
                 retrieveMapData()
-
-//__RP                override fun onFailure(call: Call<AVHouse>, t: Throwable) {
-//                    selectedHouseName?.setText("** Operation failed **")
-//                }
-
             }
         }
     }
@@ -161,10 +156,6 @@ class MainActivity : HouseActions, AppCompatActivity() {
                     villeMap?.selectedSpotX = -1
                     villeMap?.selectedSpotY = -1
                     setHouseEditMode(true)
-
-//__RP                    override fun onFailure(call: Call<AVHouse>, t: Throwable) {
-//                        selectedHouseName?.setText("** Operation failed **")
-//                    }
                 }
             }
             else {
@@ -173,16 +164,11 @@ class MainActivity : HouseActions, AppCompatActivity() {
                     editHouse?.name = houseName
 
                     GlobalScope.launch(Dispatchers.Main) {
-                        val response = serverComm?.updateHouse(editHouse)
-                            //System.out.println(response?.message()) //__RP
-                            dismissSoftKeyboard()
-                            slideDownAnimation?.start()
-                            houseDialogTextField?.setText("")
-                            selectedHouseName?.setText(houseName)
-
-//__RP                        override fun onFailure(call: Call<AVHouse>, t: Throwable) {
-//                            selectedHouseName?.setText("** Operation failed **")
-//                        }
+                        serverComm?.updateHouse(editHouse)
+                        dismissSoftKeyboard()
+                        slideDownAnimation?.start()
+                        houseDialogTextField?.setText("")
+                        selectedHouseName?.setText(houseName)
                     }
                 }
             }

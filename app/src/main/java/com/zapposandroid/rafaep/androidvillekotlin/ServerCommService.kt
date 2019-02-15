@@ -1,5 +1,6 @@
 package com.zapposandroid.rafaep.androidvillekotlin
 
+import android.util.Log
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -20,28 +21,34 @@ class ServerCommService : SafeApiCall() {
     suspend fun getAllHouses(): List<AVHouse>? {
         return safeCall(
             call = { service?.getAVHousesAsync()?.await() },
-            errorMessage = "Error fetching all houses"
+            errorMessage = "Error fetching all houses",
+            errorHandler = { Log.d("AV-AppComm", "We should handle the error here") }
+
+
         )
     }
 
     suspend fun addHouse(house: AVHouse): AVHouse? {
         return safeCall(
             call = { service?.postAVHouseAsync(house)?.await() },
-            errorMessage = "Error fetching house"
+            errorMessage = "Error fetching house",
+            errorHandler = { Log.d("AV-AppComm", "We should handle the error here") }
         )
     }
 
     suspend fun updateHouse(house: AVHouse): AVHouse? {
         return safeCall(
             call = { service?.postAVHouseAsync(house)?.await() },
-            errorMessage = "Error updating house"
+            errorMessage = "Error updating house",
+            errorHandler = { Log.d("AV-AppComm", "We should handle the error here") }
         )
     }
 
     suspend fun deleteHouse(house: AVHouse): AVHouse? {
         return safeCall(
             call = { service?.deleteAVHouseAsync(house.id)?.await() },
-            errorMessage = "Error deleting house"
+            errorMessage = "Error deleting house",
+            errorHandler = { Log.d("AV-AppComm", "We should handle the error here") }
         )
     }
 }
