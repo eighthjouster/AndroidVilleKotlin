@@ -12,15 +12,19 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-class MainActivity : HouseActions, AppCompatActivity() {
+class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     private var houseDialogTextField: EditText? = null
+    private lateinit var mGoogleMap: GoogleMap
 
     var vScroll: VScroll? = null
     var dialogLayout: ConstraintLayout? = null
@@ -97,12 +101,27 @@ class MainActivity : HouseActions, AppCompatActivity() {
 
         houseDialogTextField?.isFocusableInTouchMode = true
 
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.googleVilleMap) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+
         setHouseEditMode(false)
     }
 
     override fun onStart() {
         super.onStart()
         retrieveMapData()
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mGoogleMap = googleMap
+
+        // Add a marker in Sydney and move the camera
+        val lasVegasLocation = LatLng(36.1728546, -115.1390953)
+        mGoogleMap.addMarker(MarkerOptions().position(lasVegasLocation).title("Marker in Las Vegas"))
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(lasVegasLocation))
+        mGoogleMap.animateCamera( CameraUpdateFactory.zoomTo( 16.5f ) )
     }
 
     fun addEditHouseBtnClick(v: View) {
