@@ -4,8 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.v7.app.AppCompatActivity
@@ -14,20 +12,16 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     private var houseDialogTextField: EditText? = null
-    private lateinit var mGoogleMap: GoogleMap
+    private var googleVilleMap : GoogleVilleMap? = null
 
     var vScroll: VScroll? = null
     var dialogLayout: ConstraintLayout? = null
@@ -111,27 +105,10 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
         setHouseEditMode(false)
     }
 
-    override fun onStart() {
-        super.onStart()
-        retrieveMapData()
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
-        val houseBitmap = BitmapFactory.decodeResource(resources, R.drawable.house_icon)
-        val resizedBitmap = Bitmap.createScaledBitmap(houseBitmap, 72, 72, false);
-
-        mGoogleMap = googleMap
-
-        // Add a marker in Sydney and move the camera
-        val lasVegasLocation = LatLng(36.1728546, -115.1390953)
-        mGoogleMap.addMarker(MarkerOptions()
-            .position(lasVegasLocation)
-            .title("Marker in Las Vegas")
-            .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)))
-
-
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(lasVegasLocation))
-        mGoogleMap.animateCamera( CameraUpdateFactory.zoomTo( 16.5f ) )
+        googleVilleMap = GoogleVilleMap(resources)
+        googleVilleMap?.onMapReady(googleMap)
+        retrieveMapData()
     }
 
     fun addEditHouseBtnClick(v: View) {
