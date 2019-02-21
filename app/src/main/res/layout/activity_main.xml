@@ -124,12 +124,12 @@
             tools:layout_editor_absoluteY="177dp" />
 
         <Button
-            android:id="@+id/action_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add house"
-            android:onClick="onAddEditHouseBtnClick"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txt_input_house_name" />
+                android:id="@+id/action_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add house"
+                android:onClick="onAddEditHouseBtnClick"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txt_input_house_name"/>
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

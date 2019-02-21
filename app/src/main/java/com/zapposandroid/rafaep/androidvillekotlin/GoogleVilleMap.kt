@@ -3,6 +3,7 @@ package com.zapposandroid.rafaep.androidvillekotlin
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.widget.TextView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
@@ -26,7 +27,14 @@ class GoogleVilleMap(parentResources: Resources) {
 
     private var selectedSpotMarker: Marker? = null
     private var selectedHouseMarker: Marker? = null
-    var selectedHouse: AVHouse? = null //__RP
+
+    var txtHouseName: TextView? = null
+    var houseActions: HouseActions? = null
+
+    var houses: List<AVHouse>? = null
+    var selectedHouse: AVHouse? = null
+
+    var selectedSpotPosition: LatLng? = null
 
     private val onMapClickListener = GoogleMap.OnMapClickListener {
         if (selectedSpotMarker != null) {
@@ -39,7 +47,20 @@ class GoogleVilleMap(parentResources: Resources) {
             selectedHouseMarker = null
         }
 
-        selectedSpotMarker = addMarker(it, MarkerType.SELECTED_SPOT, "Yo. Selected area!")
+        selectedSpotMarker = addMarker(it, MarkerType.SELECTED_SPOT, "Yo. Selected area!") //__RP change caption.
+
+        selectedSpotPosition = selectedSpotMarker?.position
+
+        houseActions?.setHouseEditMode(false)
+    }
+
+    fun unSelectSpot() {
+        if (selectedSpotMarker != null) {
+            selectedSpotMarker?.remove()
+        }
+
+        selectedSpotMarker = null
+        selectedSpotPosition = null
     }
 
     private val onMarkerClickListener = GoogleMap.OnMarkerClickListener {
@@ -50,6 +71,7 @@ class GoogleVilleMap(parentResources: Resources) {
                 it.remove()
                 selectedSpotMarker = null
                 letMapMarkIt = false
+                houseActions?.setHouseEditMode(false)
             }
             MarkerType.HOUSE, MarkerType.SELECTED_HOUSE -> {
                 if (selectedSpotMarker != null) {
@@ -62,6 +84,19 @@ class GoogleVilleMap(parentResources: Resources) {
                 }
                 selectedHouseMarker = it
                 selectedHouseMarker?.setIcon(getMarkerIconFromType(MarkerType.SELECTED_HOUSE))
+                houseActions?.setHouseEditMode(true)
+
+
+                txtHouseName?.text = ""
+                val allHouses = houses.orEmpty()
+                for (house in allHouses) {
+                    selectedHouse?.selected = false
+                    if (house.id == markerInfo.houseId) {
+                        selectedHouse = house
+                        selectedHouse?.selected = true
+                        txtHouseName?.text = house.name
+                    }
+                }
             }
         }
         !letMapMarkIt
@@ -100,5 +135,4 @@ class GoogleVilleMap(parentResources: Resources) {
         mGoogleMap.setOnMapClickListener(onMapClickListener)
         mGoogleMap.setOnMarkerClickListener(onMarkerClickListener)
     }
-
 }

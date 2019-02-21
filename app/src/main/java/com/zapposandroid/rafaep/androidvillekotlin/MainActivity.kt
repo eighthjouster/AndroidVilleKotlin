@@ -15,6 +15,7 @@ import android.widget.TextView
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -108,6 +109,8 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         googleVilleMap = GoogleVilleMap(resources)
         googleVilleMap?.onMapReady(googleMap)
+        googleVilleMap?.houseActions = this
+        googleVilleMap?.txtHouseName = findViewById(R.id.txt_house_name)
         retrieveMapData()
     }
 
@@ -148,20 +151,21 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
         if ("" != houseName) {
             if (villeMap?.selectedHouse == null) {
                 val houseId = nextHouseId++
-                val newHouse = AVHouse(houseId, houseName, AVAddress(villeMap?.selectedSpotX ?: 0, villeMap?.selectedSpotY ?: 0), false)
+                val newHouse = AVHouse(houseId, houseName, AVAddress(villeMap?.selectedSpotX ?: 0, villeMap?.selectedSpotY ?: 0, googleVilleMap?.selectedSpotPosition ?: LatLng(0.0, 0.0)), false)
 
                 GlobalScope.launch(Dispatchers.Main) {
                     serverComm?.addHouse(newHouse)
 
                     dismissSoftKeyboard()
-                    cancelDialogButton?.setVisibility(View.INVISIBLE)
+                    cancelDialogButton?.visibility = View.INVISIBLE
                     slideDownAnimation?.start()
                     houseDialogTextField?.setText("")
                     retrieveMapData(houseId)
                     selectedHouseName?.text = houseName
                     villeMap?.selectedSpotX = -1
                     villeMap?.selectedSpotY = -1
-                    setHouseEditMode(true)
+                    googleVilleMap?.unSelectSpot();
+                    setHouseEditMode(true) //__RP shouldn't this be false instead?
                 }
             }
             else {
@@ -224,7 +228,8 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     fun retrieveMapData() {
         GlobalScope.launch(Dispatchers.Main) {
             val houses = serverComm?.getAllHouses()
-            villeMap?.setHouses(houses)
+            villeMap?.setHouses(houses) //__RP this can be removed.
+            googleVilleMap?.houses = houses
             if (houseToHighlight != -1) {
                 villeMap?.highlightHouse(houseToHighlight)
                 houseToHighlight = -1
