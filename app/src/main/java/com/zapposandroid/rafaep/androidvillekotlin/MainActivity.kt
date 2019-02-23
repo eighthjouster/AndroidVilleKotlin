@@ -110,6 +110,10 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun addEditHouseBtnClick(v: View) {
+        if ((googleVilleMap?.selectedHouse == null) && (googleVilleMap?.selectedSpotPosition == null)) {
+            return;
+        }
+
         if (houseEditMode && googleVilleMap?.selectedHouse != null) {
             houseDialogTextField?.setText(googleVilleMap?.selectedHouse?.name)
             houseDialogTextField?.selectAll()

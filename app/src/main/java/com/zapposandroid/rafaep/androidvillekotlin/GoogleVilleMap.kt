@@ -49,6 +49,8 @@ class GoogleVilleMap(parentResources: Resources) {
             selectedHouseMarker = null
         }
 
+        selectedHouse = null
+
         selectedSpotMarker = addMarker(it, MarkerType.SELECTED_SPOT, "Yo. Selected area!") //__RP change caption.
 
         selectedSpotPosition = selectedSpotMarker?.position
@@ -162,7 +164,15 @@ class GoogleVilleMap(parentResources: Resources) {
                 house.associatedMapMarker?.setIcon(getMarkerIconFromType(MarkerType.SELECTED_HOUSE))
                 selectedHouse = house
                 selectedHouse?.selected = true
+
+                if (selectedHouseMarker != null) {
+                    selectedHouseMarker?.setIcon(getMarkerIconFromType(MarkerType.HOUSE))
+                    selectedHouseMarker = null
+                }
+
+                selectedHouseMarker = selectedHouse?.associatedMapMarker
                 txtHouseName?.text = house.name
+                break
             }
         }
     }
