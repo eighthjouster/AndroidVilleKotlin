@@ -1,5 +1,0 @@
-<resources>
-    <declare-styleable name="VilleMap">
-        <attr name="villeName" format="string" />
-    </declare-styleable>
-</resources>

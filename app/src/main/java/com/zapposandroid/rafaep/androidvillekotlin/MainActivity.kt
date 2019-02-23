@@ -16,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -24,7 +25,6 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     private var houseDialogTextField: EditText? = null
     private var googleVilleMap : GoogleVilleMap? = null
 
-    var vScroll: VScroll? = null
     private var dialogLayout: ConstraintLayout? = null
     private var nextHouseId = 1
     private var selectedHouseName: TextView? = null
@@ -46,7 +46,6 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
 
         setContentView(R.layout.activity_main)
 
-        vScroll = findViewById(R.id.vScroll)
         dialogLayout = findViewById(R.id.ll_house_dialog)
         houseDialogTextField = findViewById(R.id.txt_input_house_name)
         addEditButton = findViewById(R.id.btn_add_house)
@@ -54,8 +53,6 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
         addEditDialogButton = findViewById(R.id.action_button)
         cancelDialogButton = findViewById(R.id.cancel_button)
         selectedHouseName = findViewById(R.id.txt_house_name)
-
-        vScroll?.hScroll = findViewById(R.id.hScroll)
 
         slideUpAnimation = AnimatorInflater.loadAnimator(this,
         R.animator.slide_up) as AnimatorSet
@@ -111,7 +108,8 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
 
     fun addEditHouseBtnClick(v: View) {
         if ((googleVilleMap?.selectedHouse == null) && (googleVilleMap?.selectedSpotPosition == null)) {
-            return;
+            txt_house_name.text = "Choose a spot in the map first."
+            return
         }
 
         if (houseEditMode && googleVilleMap?.selectedHouse != null) {
