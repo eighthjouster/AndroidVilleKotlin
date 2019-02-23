@@ -31,7 +31,7 @@ class ServerCommService : SafeApiCall() {
     suspend fun addHouse(house: AVHouse): AVHouse? {
         return safeCall(
             call = { service?.postAVHouseAsync(house)?.await() },
-            errorMessage = "Error fetching house",
+            errorMessage = "Error adding house",
             errorHandler = { Log.d("AV-AppComm", "We should handle the error here") }
         )
     }

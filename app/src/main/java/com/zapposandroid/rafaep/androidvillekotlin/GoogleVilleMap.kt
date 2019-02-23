@@ -21,9 +21,9 @@ class GoogleVilleMap(parentResources: Resources) {
     private lateinit var mGoogleMap: GoogleMap
     private val parentActivityResources = parentResources
 
-    private val houseBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(parentActivityResources, R.drawable.house_icon), MARKER_WIDTH, MARKER_HEIGHT, false);
-    private val selectedHouseBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(parentActivityResources, R.drawable.house_selected_icon), MARKER_WIDTH, MARKER_HEIGHT, false);
-    private val selectedSpotBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(parentActivityResources, R.drawable.spot_selected_icon), MARKER_WIDTH, MARKER_HEIGHT, false);
+    private val houseBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(parentActivityResources, R.drawable.house_icon), MARKER_WIDTH, MARKER_HEIGHT, false)
+    private val selectedHouseBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(parentActivityResources, R.drawable.house_selected_icon), MARKER_WIDTH, MARKER_HEIGHT, false)
+    private val selectedSpotBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(parentActivityResources, R.drawable.spot_selected_icon), MARKER_WIDTH, MARKER_HEIGHT, false)
 
     private var selectedSpotMarker: Marker? = null
     private var selectedHouseMarker: Marker? = null
@@ -31,7 +31,9 @@ class GoogleVilleMap(parentResources: Resources) {
     var txtHouseName: TextView? = null
     var houseActions: HouseActions? = null
 
-    var houses: List<AVHouse>? = null
+    private var allMarkers: MutableList<Marker>? = null
+
+    private var mHouses: List<AVHouse>? = null
     var selectedHouse: AVHouse? = null
 
     var selectedSpotPosition: LatLng? = null
@@ -88,8 +90,7 @@ class GoogleVilleMap(parentResources: Resources) {
 
 
                 txtHouseName?.text = ""
-                val allHouses = houses.orEmpty()
-                for (house in allHouses) {
+                for (house in mHouses.orEmpty()) {
                     selectedHouse?.selected = false
                     if (house.id == markerInfo.houseId) {
                         selectedHouse = house
@@ -110,18 +111,20 @@ class GoogleVilleMap(parentResources: Resources) {
         })
     }
 
-    private fun addMarker(latLng: LatLng, type: MarkerType, caption: String, houseId: Int = 0): Marker {
+    private fun addMarker(latLng: LatLng, type: MarkerType, caption: String, houseId: Int = 0): Marker? {
        val marker = mGoogleMap.addMarker(
             MarkerOptions()
                 .position(latLng)
                 .title(caption)
                 .icon(getMarkerIconFromType(type)))
        marker.tag = MarkerInfo(houseId, type)
+       allMarkers?.add(marker)
        return marker
     }
 
     fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
+        allMarkers = mutableListOf()
 
         // Add a marker in Sydney and move the camera
         val lasVegasLocation = LatLng(36.1728546, -115.1390953)
@@ -134,5 +137,33 @@ class GoogleVilleMap(parentResources: Resources) {
         mGoogleMap.animateCamera( CameraUpdateFactory.zoomTo( 16.5f ) )
         mGoogleMap.setOnMapClickListener(onMapClickListener)
         mGoogleMap.setOnMarkerClickListener(onMarkerClickListener)
+    }
+
+    fun setHouses(houses: List<AVHouse>?) {
+        mHouses = houses
+        for (thisMarker: Marker in allMarkers.orEmpty()) {
+            thisMarker.remove()
+        }
+        System.out.println("ADDING HOUSES????")//__RP
+        for (thisHouse: AVHouse in mHouses.orEmpty()) {
+            System.out.println("ADDING HOUSE")//__RP
+            //__RP thisHouse.associatedMapMarker = addMarker(LatLng(thisHouse.address?.latitude, thisHouse.address?.longitude), MarkerType.HOUSE, thisHouse.name, thisHouse.id)
+        }
+    }
+
+    fun highlightHouse(houseId: Int) {
+        if (selectedHouse != null) {
+            selectedHouse?.selected = false
+            selectedHouse = null
+        }
+
+        for (house in mHouses.orEmpty()) {
+            if (house.id == houseId) {
+                //__RP house.associatedMapMarker?.setIcon(getMarkerIconFromType(MarkerType.SELECTED_HOUSE))
+                selectedHouse = house
+                selectedHouse?.selected = true
+                txtHouseName?.text = house.name
+            }
+        }
     }
 }

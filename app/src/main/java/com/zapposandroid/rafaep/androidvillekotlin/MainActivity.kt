@@ -25,11 +25,10 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     private var googleVilleMap : GoogleVilleMap? = null
 
     var vScroll: VScroll? = null
-    var dialogLayout: ConstraintLayout? = null
-    var nextHouseId = 1
-    var selectedHouseName: TextView? = null
+    private var dialogLayout: ConstraintLayout? = null
+    private var nextHouseId = 1
+    private var selectedHouseName: TextView? = null
 
-    var villeMap: VilleMap? = null
     private var addEditButton: Button? = null
     private var deleteButton: Button? = null
     private var addEditDialogButton: Button? = null
@@ -38,8 +37,8 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     private var slideDownAnimation: AnimatorSet? = null
     private var houseEditMode = false
 
-    var serverComm: ServerCommService? = null
-    var houseToHighlight = -1
+    private var serverComm: ServerCommService? = null
+    private var houseToHighlight = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,9 +47,6 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_main)
 
         vScroll = findViewById(R.id.vScroll)
-        villeMap = findViewById(R.id.mainVilleMap)
-        villeMap?.txtHouseName = findViewById(R.id.txt_house_name)
-        villeMap?.houseActions = this
         dialogLayout = findViewById(R.id.ll_house_dialog)
         houseDialogTextField = findViewById(R.id.txt_input_house_name)
         addEditButton = findViewById(R.id.btn_add_house)
@@ -60,7 +56,6 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
         selectedHouseName = findViewById(R.id.txt_house_name)
 
         vScroll?.hScroll = findViewById(R.id.hScroll)
-        vScroll?.villeMap = villeMap
 
         slideUpAnimation = AnimatorInflater.loadAnimator(this,
         R.animator.slide_up) as AnimatorSet
@@ -68,9 +63,9 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
             override fun onAnimationStart(animator: Animator) {
             }
             override fun onAnimationEnd(animator: Animator) {
-                addEditButton?.setVisibility(View.INVISIBLE)
-                deleteButton?.setVisibility(View.INVISIBLE)
-                cancelDialogButton?.setVisibility(View.VISIBLE)
+                addEditButton?.visibility = View.INVISIBLE
+                deleteButton?.visibility = View.INVISIBLE
+                cancelDialogButton?.visibility = View.VISIBLE
                 houseDialogTextField?.requestFocus()
                 showSoftKeyboard()
             }
@@ -87,8 +82,8 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
             override fun onAnimationStart(animator: Animator) {
             }
             override fun onAnimationEnd(animator: Animator) {
-                addEditButton?.setVisibility(View.VISIBLE)
-                deleteButton?.setVisibility(View.VISIBLE)
+                addEditButton?.visibility = View.VISIBLE
+                deleteButton?.visibility = View.VISIBLE
             }
             override fun onAnimationCancel(animator: Animator) {
             }
@@ -115,25 +110,21 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun addEditHouseBtnClick(v: View) {
-        if (houseEditMode && villeMap?.selectedHouse != null) {
-            houseDialogTextField?.setText(villeMap?.selectedHouse?.name)
+        if (houseEditMode && googleVilleMap?.selectedHouse != null) {
+            houseDialogTextField?.setText(googleVilleMap?.selectedHouse?.name)
             houseDialogTextField?.selectAll()
         }
         slideUpAnimation?.start()
     }
 
     fun deleteHouseBtnClick(v: View) {
-        if (houseEditMode && villeMap?.selectedHouse != null) {
-            val selectedSpotX = villeMap?.selectedHouse?.address?.x
-            val selectedSpotY = villeMap?.selectedHouse?.address?.y
-            villeMap?.selectedSpotY = -1
+        if (houseEditMode && googleVilleMap?.selectedHouse != null) {
             GlobalScope.launch(Dispatchers.Main) {
-                serverComm?.deleteHouse(villeMap?.selectedHouse as AVHouse)
+                serverComm?.deleteHouse(googleVilleMap?.selectedHouse as AVHouse)
                 houseDialogTextField?.setText("")
-                selectedHouseName?.setText("")
-                villeMap?.selectedHouse = null
-                villeMap?.selectedSpotX = selectedSpotX ?: 0
-                villeMap?.selectedSpotY = selectedSpotY ?: 0
+                selectedHouseName?.text = ""
+                googleVilleMap?.selectedHouse = null
+                googleVilleMap?.selectedSpotPosition = null
                 setHouseEditMode(false)
                 retrieveMapData()
             }
@@ -142,18 +133,19 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
 
     fun onDismissHouseDialogBtnClick(v: View?) {
         dismissSoftKeyboard()
-        cancelDialogButton?.setVisibility(View.INVISIBLE)
+        cancelDialogButton?.visibility = View.INVISIBLE
         slideDownAnimation?.start()
     }
 
     fun onAddEditHouseBtnClick(v: View) {
         val houseName = houseDialogTextField?.text.toString()
         if ("" != houseName) {
-            if (villeMap?.selectedHouse == null) {
+            if (googleVilleMap?.selectedHouse == null) {
                 val houseId = nextHouseId++
-                val newHouse = AVHouse(houseId, houseName, AVAddress(villeMap?.selectedSpotX ?: 0, villeMap?.selectedSpotY ?: 0, googleVilleMap?.selectedSpotPosition ?: LatLng(0.0, 0.0)), false)
+                val newHouse = AVHouse(houseId, houseName, AVAddress(googleVilleMap?.selectedSpotPosition ?: LatLng(0.0, 0.0)), false)
 
                 GlobalScope.launch(Dispatchers.Main) {
+                    System.out.println("ADDING A NEW HOUSE TO THE SERVER ====================")
                     serverComm?.addHouse(newHouse)
 
                     dismissSoftKeyboard()
@@ -162,23 +154,21 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
                     houseDialogTextField?.setText("")
                     retrieveMapData(houseId)
                     selectedHouseName?.text = houseName
-                    villeMap?.selectedSpotX = -1
-                    villeMap?.selectedSpotY = -1
-                    googleVilleMap?.unSelectSpot();
+                    googleVilleMap?.unSelectSpot()
                     setHouseEditMode(true) //__RP shouldn't this be false instead?
                 }
             }
             else {
-                var editHouse = villeMap?.selectedHouse
+                val editHouse = googleVilleMap?.selectedHouse
                 if (editHouse != null) {
-                    editHouse?.name = houseName
+                    editHouse.name = houseName
 
                     GlobalScope.launch(Dispatchers.Main) {
                         serverComm?.updateHouse(editHouse)
                         dismissSoftKeyboard()
                         slideDownAnimation?.start()
                         houseDialogTextField?.setText("")
-                        selectedHouseName?.setText(houseName)
+                        selectedHouseName?.text = houseName
                     }
                 }
             }
@@ -186,33 +176,33 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun showSoftKeyboard() {
-        var imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0)
     }
 
-    fun dismissSoftKeyboard() {
-        var imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0)
+    private fun dismissSoftKeyboard() {
+        val imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 
     override fun setHouseEditMode(editMode: Boolean) {
         houseEditMode = editMode
 
         if (houseEditMode) {
-            addEditButton?.setText("Edit house")
-            addEditDialogButton?.setText("Edit house")
-            deleteButton?.setTextColor(getResources().getColor(R.color.red))
+            addEditButton?.text = "Edit house"
+            addEditDialogButton?.text = "Edit house"
+            deleteButton?.setTextColor(resources.getColor(R.color.red))
         }
         else {
-            addEditButton?.setText("Add house")
-            addEditDialogButton?.setText("Add house")
-            deleteButton?.setTextColor(getResources().getColor(R.color.softRed))
+            addEditButton?.text = "Add house"
+            addEditDialogButton?.text = "Add house"
+            deleteButton?.setTextColor(resources.getColor(R.color.softRed))
         }
         deleteButton?.isEnabled = houseEditMode
     }
 
     override fun onBackPressed() {
-        if (cancelDialogButton?.getVisibility() == View.VISIBLE) {
+        if (cancelDialogButton?.visibility == View.VISIBLE) {
             onDismissHouseDialogBtnClick(null)
         }
         else {
@@ -220,26 +210,28 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    fun retrieveMapData(houseToHighlight: Int) {
+    private fun retrieveMapData(houseToHighlight: Int) {
         this.houseToHighlight = houseToHighlight
         retrieveMapData()
     }
 
-    fun retrieveMapData() {
+    private fun retrieveMapData() {
+        System.out.println("RETRIEVING MAP DATA!")//__RP
         GlobalScope.launch(Dispatchers.Main) {
+            System.out.println("BEFORE COMM")//__RP
             val houses = serverComm?.getAllHouses()
-            villeMap?.setHouses(houses) //__RP this can be removed.
-            googleVilleMap?.houses = houses
+            System.out.println("AFTER COMM")//__RP
+            googleVilleMap?.setHouses(houses)
             if (houseToHighlight != -1) {
-                villeMap?.highlightHouse(houseToHighlight)
+                googleVilleMap?.highlightHouse(houseToHighlight)
                 houseToHighlight = -1
             }
 
             val houseSize: Int = houses?.size ?: 0
             for (i in 0 until houseSize) {
                 val house: AVHouse? = houses?.get(i)
-                if (house?.id != null && nextHouseId != null && nextHouseId as Int <= house?.id) {
-                    nextHouseId = house?.id + 1
+                if (house?.id != null && nextHouseId <= house.id) {
+                    nextHouseId = house.id + 1
                 }
             }
         }

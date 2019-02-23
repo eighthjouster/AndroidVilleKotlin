@@ -121,16 +121,6 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
                                 selectedHouse = null
                             }
                             val allHouses = houses.orEmpty()
-                            for (house in allHouses) {
-                                if ((house.address.x == x) && (house.address.y == y)) {
-                                    selectedHouse = house
-                                    selectedHouse?.selected = true
-
-                                    txtHouseName?.text = house.name
-
-                                    houseSelected = true
-                                }
-                            }
                         }
 
                         if (houseSelected) {
@@ -181,17 +171,6 @@ class VilleMap(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
         if (houses != null) {
             val allHouses = houses.orEmpty()
-            for (house in allHouses) {
-                canvas.save()
-                canvas.translate((house.address.x * 100).toFloat(),(house.address.y * 100).toFloat())
-                canvas.drawBitmap(houseBitmap, null, houseBitmapSize, null)
-
-                if (house.selected) {
-                    canvas.drawBitmap(houseSelectedBitmap, null, houseBitmapSize, null)
-                }
-
-                canvas.restore()
-            }
         }
 
         if (selectedSpotX != -1) {
