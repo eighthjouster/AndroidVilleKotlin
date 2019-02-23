@@ -142,7 +142,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
         if ("" != houseName) {
             if (googleVilleMap?.selectedHouse == null) {
                 val houseId = nextHouseId++
-                val newHouse = AVHouse(houseId, houseName, AVAddress(googleVilleMap?.selectedSpotPosition ?: LatLng(0.0, 0.0)), false)
+                val newHouse = AVHouse(houseId, houseName, AVAddress(googleVilleMap?.selectedSpotPosition ?: LatLng(0.0, 0.0)), false, null)
 
                 GlobalScope.launch(Dispatchers.Main) {
                     System.out.println("ADDING A NEW HOUSE TO THE SERVER ====================")

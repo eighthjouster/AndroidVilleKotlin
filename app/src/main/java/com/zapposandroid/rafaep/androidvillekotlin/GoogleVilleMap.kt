@@ -147,7 +147,7 @@ class GoogleVilleMap(parentResources: Resources) {
         System.out.println("ADDING HOUSES????")//__RP
         for (thisHouse: AVHouse in mHouses.orEmpty()) {
             System.out.println("ADDING HOUSE")//__RP
-            //__RP thisHouse.associatedMapMarker = addMarker(LatLng(thisHouse.address?.latitude, thisHouse.address?.longitude), MarkerType.HOUSE, thisHouse.name, thisHouse.id)
+            thisHouse.associatedMapMarker = addMarker(thisHouse.address.position, MarkerType.HOUSE, thisHouse.name, thisHouse.id)
         }
     }
 
@@ -159,7 +159,7 @@ class GoogleVilleMap(parentResources: Resources) {
 
         for (house in mHouses.orEmpty()) {
             if (house.id == houseId) {
-                //__RP house.associatedMapMarker?.setIcon(getMarkerIconFromType(MarkerType.SELECTED_HOUSE))
+                house.associatedMapMarker?.setIcon(getMarkerIconFromType(MarkerType.SELECTED_HOUSE))
                 selectedHouse = house
                 selectedHouse?.selected = true
                 txtHouseName?.text = house.name
