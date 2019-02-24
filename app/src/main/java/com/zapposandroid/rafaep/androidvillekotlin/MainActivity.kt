@@ -222,10 +222,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
     }
 
     private suspend fun retrieveMapData() {
-        System.out.println("RETRIEVING MAP DATA!")//__RP
-        System.out.println("BEFORE COMM")//__RP
         val houses = serverComm?.getAllHouses()
-        System.out.println("AFTER COMM")//__RP
         googleVilleMap?.setHouses(houses)
         if (houseToHighlight != -1) {
             googleVilleMap?.highlightHouse(houseToHighlight)

@@ -151,9 +151,7 @@ class GoogleVilleMap(parentResources: Resources) {
         for (thisMarker: Marker in allMarkers.orEmpty()) {
             thisMarker.remove()
         }
-        System.out.println("ADDING HOUSES????")//__RP
         for (thisHouse: AVHouse in mHouses.orEmpty()) {
-            System.out.println("ADDING HOUSE")//__RP
             thisHouse.associatedMapMarker = addMarker(thisHouse.address.position, MarkerType.HOUSE, thisHouse.name, thisHouse.id)
         }
     }
