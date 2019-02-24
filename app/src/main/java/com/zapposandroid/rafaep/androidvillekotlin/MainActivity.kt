@@ -125,8 +125,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
                 serverComm?.deleteHouse(googleVilleMap?.selectedHouse as AVHouse)
                 houseDialogTextField?.setText("")
                 selectedHouseName?.text = ""
-                googleVilleMap?.selectedHouse = null
-                googleVilleMap?.selectedSpotPosition = null
+                googleVilleMap?.unSelectHouse()
                 setHouseEditMode(false)
                 retrieveMapData()
             }
@@ -155,9 +154,8 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
                     slideDownAnimation?.start()
                     houseDialogTextField?.setText("")
                     retrieveMapData(houseId)
-                    selectedHouseName?.text = houseName
                     googleVilleMap?.unSelectSpot()
-                    setHouseEditMode(true) //__RP shouldn't this be false instead?
+                    setHouseEditMode(true)
                 }
             }
             else {
@@ -170,7 +168,8 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
                         dismissSoftKeyboard()
                         slideDownAnimation?.start()
                         houseDialogTextField?.setText("")
-                        selectedHouseName?.text = houseName
+                        googleVilleMap?.unSelectHouse()
+                        retrieveMapData(editHouse.id)
                     }
                 }
             }

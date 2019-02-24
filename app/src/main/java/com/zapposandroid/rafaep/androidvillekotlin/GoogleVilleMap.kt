@@ -58,6 +58,11 @@ class GoogleVilleMap(parentResources: Resources) {
         houseActions?.setHouseEditMode(false)
     }
 
+    fun unSelectHouse() {
+        selectedHouse = null
+        selectedHouseMarker = null
+    }
+
     fun unSelectSpot() {
         if (selectedSpotMarker != null) {
             selectedSpotMarker?.remove()
@@ -172,6 +177,7 @@ class GoogleVilleMap(parentResources: Resources) {
 
                 selectedHouseMarker = selectedHouse?.associatedMapMarker
                 txtHouseName?.text = house.name
+
                 break
             }
         }
