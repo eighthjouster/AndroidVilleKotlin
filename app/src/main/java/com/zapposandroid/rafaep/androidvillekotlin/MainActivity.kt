@@ -17,11 +17,14 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+
     private var houseDialogTextField: EditText? = null
     private var googleVilleMap : GoogleVilleMap? = null
 
@@ -121,7 +124,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
 
     fun deleteHouseBtnClick(v: View) {
         if (houseEditMode && googleVilleMap?.selectedHouse != null) {
-            GlobalScope.launch(Dispatchers.Main) {
+            launch(Dispatchers.Main) {
                 serverComm?.deleteHouse(googleVilleMap?.selectedHouse as AVHouse)
                 houseDialogTextField?.setText("")
                 selectedHouseName?.text = ""
@@ -145,7 +148,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
                 val houseId = nextHouseId++
                 val newHouse = AVHouse(houseId, houseName, AVAddress(googleVilleMap?.selectedSpotPosition ?: LatLng(0.0, 0.0)), false, null)
 
-                GlobalScope.launch(Dispatchers.Main) {
+                launch(Dispatchers.Main) {
                     System.out.println("ADDING A NEW HOUSE TO THE SERVER ====================")
                     serverComm?.addHouse(newHouse)
 
@@ -163,7 +166,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
                 if (editHouse != null) {
                     editHouse.name = houseName
 
-                    GlobalScope.launch(Dispatchers.Main) {
+                    launch(Dispatchers.Main) {
                         serverComm?.updateHouse(editHouse)
                         dismissSoftKeyboard()
                         slideDownAnimation?.start()
@@ -218,7 +221,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback {
 
     private fun retrieveMapData() {
         System.out.println("RETRIEVING MAP DATA!")//__RP
-        GlobalScope.launch(Dispatchers.Main) {
+        launch(Dispatchers.Main) {
             System.out.println("BEFORE COMM")//__RP
             val houses = serverComm?.getAllHouses()
             System.out.println("AFTER COMM")//__RP
