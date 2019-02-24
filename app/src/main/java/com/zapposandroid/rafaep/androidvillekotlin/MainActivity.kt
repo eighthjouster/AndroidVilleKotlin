@@ -30,8 +30,6 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
     private var googleVilleMap : GoogleVilleMap? = null
 
     private var dialogLayout: ConstraintLayout? = null
-    private var nextHouseId = 1
-    private var selectedHouseName: TextView? = null
 
     private var addEditButton: Button? = null
     private var deleteButton: Button? = null
@@ -39,14 +37,21 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
     private var cancelDialogButton: Button? = null
     private var slideUpAnimation: AnimatorSet? = null
     private var slideDownAnimation: AnimatorSet? = null
+
+    private var nextHouseId = 1
+    private var selectedHouseName: TextView? = null
     private var houseEditMode = false
+    private var houseToHighlight = -1
+    private var mAllHouses: List<AVHouse>? = null
 
     private var serverComm: ServerCommService? = null
-    private var houseToHighlight = -1
+
+    private val mainViewModel: MainViewModel by lazy {
+        ViewModelProviders.of(this).get(MainViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val mainViewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
 
         serverComm = ServerCommService()
 
@@ -225,8 +230,9 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
     }
 
     private suspend fun retrieveMapData() {
-        val houses = serverComm?.getAllHouses()
-        googleVilleMap?.setHouses(houses)
+        val houses = mainViewModel?.allHouses ?: serverComm?.getAllHouses()
+        mAllHouses = houses
+        googleVilleMap?.setHouses(mAllHouses)
         if (houseToHighlight != -1) {
             googleVilleMap?.highlightHouse(houseToHighlight)
             houseToHighlight = -1
