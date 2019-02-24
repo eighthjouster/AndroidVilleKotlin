@@ -3,6 +3,7 @@ package com.zapposandroid.rafaep.androidvillekotlin
 import android.animation.Animator
 import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
@@ -45,6 +46,8 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val mainViewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+
         serverComm = ServerCommService()
 
         setContentView(R.layout.activity_main)

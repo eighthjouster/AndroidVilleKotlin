@@ -23,8 +23,6 @@ class ServerCommService : SafeApiCall() {
             call = { service?.getAVHousesAsync()?.await() },
             errorMessage = "Error fetching all houses",
             errorHandler = { Log.d("AV-AppComm", "We should handle the error here") }
-
-
         )
     }
 
