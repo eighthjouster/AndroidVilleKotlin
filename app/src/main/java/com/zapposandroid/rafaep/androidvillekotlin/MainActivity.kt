@@ -106,7 +106,9 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
         googleVilleMap?.onMapReady(googleMap)
         googleVilleMap?.houseActions = this
         googleVilleMap?.txtHouseName = findViewById(R.id.txt_house_name)
-        retrieveMapData()
+        launch(Dispatchers.Main) {
+            retrieveMapData()
+        }
     }
 
     fun addEditHouseBtnClick(v: View) {
@@ -214,29 +216,27 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
         }
     }
 
-    private fun retrieveMapData(houseToHighlight: Int) {
+    private suspend fun retrieveMapData(houseToHighlight: Int) {
         this.houseToHighlight = houseToHighlight
         retrieveMapData()
     }
 
-    private fun retrieveMapData() {
+    private suspend fun retrieveMapData() {
         System.out.println("RETRIEVING MAP DATA!")//__RP
-        launch(Dispatchers.Main) {
-            System.out.println("BEFORE COMM")//__RP
-            val houses = serverComm?.getAllHouses()
-            System.out.println("AFTER COMM")//__RP
-            googleVilleMap?.setHouses(houses)
-            if (houseToHighlight != -1) {
-                googleVilleMap?.highlightHouse(houseToHighlight)
-                houseToHighlight = -1
-            }
+        System.out.println("BEFORE COMM")//__RP
+        val houses = serverComm?.getAllHouses()
+        System.out.println("AFTER COMM")//__RP
+        googleVilleMap?.setHouses(houses)
+        if (houseToHighlight != -1) {
+            googleVilleMap?.highlightHouse(houseToHighlight)
+            houseToHighlight = -1
+        }
 
-            val houseSize: Int = houses?.size ?: 0
-            for (i in 0 until houseSize) {
-                val house: AVHouse? = houses?.get(i)
-                if (house?.id != null && nextHouseId <= house.id) {
-                    nextHouseId = house.id + 1
-                }
+        val houseSize: Int = houses?.size ?: 0
+        for (i in 0 until houseSize) {
+            val house: AVHouse? = houses?.get(i)
+            if (house?.id != null && nextHouseId <= house.id) {
+                nextHouseId = house.id + 1
             }
         }
     }
