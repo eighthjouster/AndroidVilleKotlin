@@ -18,7 +18,7 @@ enum class MarkerType {
 data class MarkerInfo(val houseId: Int, val type: MarkerType)
 
 class GoogleVilleMap(parentResources: Resources) {
-    private lateinit var mGoogleMap: GoogleMap
+    lateinit var mGoogleMap: GoogleMap
     private val parentActivityResources = parentResources
 
     private val houseBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(parentActivityResources, R.drawable.house_icon), MARKER_WIDTH, MARKER_HEIGHT, false)

@@ -20,6 +20,8 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
+import com.google.android.gms.maps.CameraUpdateFactory
+
 
 class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
     private val job = SupervisorJob()
@@ -109,11 +111,32 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
         setHouseEditMode(false)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mainViewModel.houseToHighlight = googleVilleMap?.selectedHouse?.id ?: -1
+        mainViewModel.cameraTargetLatitude = googleVilleMap?.mGoogleMap?.cameraPosition?.target?.latitude ?: 0.0
+        mainViewModel.cameraTargetLongitude = googleVilleMap?.mGoogleMap?.cameraPosition?.target?.longitude ?: 0.0
+        mainViewModel.cameraZoom = googleVilleMap?.mGoogleMap?.cameraPosition?.zoom ?: 0f
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         googleVilleMap = GoogleVilleMap(resources)
         googleVilleMap?.onMapReady(googleMap)
         googleVilleMap?.houseActions = this
         googleVilleMap?.txtHouseName = findViewById(R.id.txt_house_name)
+        val cameraZoom = mainViewModel.cameraZoom
+        if (cameraZoom != 0f) {
+            googleVilleMap?.mGoogleMap?.moveCamera(
+                CameraUpdateFactory.newLatLng(
+                    LatLng(
+                        mainViewModel.cameraTargetLatitude,
+                        mainViewModel.cameraTargetLongitude
+                    )
+                )
+            )
+            googleVilleMap?.mGoogleMap?.animateCamera(CameraUpdateFactory.zoomTo(cameraZoom))
+        }
+
         launch(Dispatchers.Main) {
             retrieveMapData()
         }
@@ -230,17 +253,20 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
     }
 
     private suspend fun retrieveMapData() {
-        val houses = mainViewModel?.allHouses ?: serverComm?.getAllHouses()
-        mAllHouses = houses
+        mAllHouses = mainViewModel?.allHouses ?: serverComm?.getAllHouses()
+        if (houseToHighlight == -1) {
+            houseToHighlight = mainViewModel.houseToHighlight
+        }
+        mainViewModel.allHouses = mAllHouses
         googleVilleMap?.setHouses(mAllHouses)
         if (houseToHighlight != -1) {
             googleVilleMap?.highlightHouse(houseToHighlight)
             houseToHighlight = -1
         }
 
-        val houseSize: Int = houses?.size ?: 0
+        val houseSize: Int = mAllHouses?.size ?: 0
         for (i in 0 until houseSize) {
-            val house: AVHouse? = houses?.get(i)
+            val house: AVHouse? = mAllHouses?.get(i)
             if (house?.id != null && nextHouseId <= house.id) {
                 nextHouseId = house.id + 1
             }
