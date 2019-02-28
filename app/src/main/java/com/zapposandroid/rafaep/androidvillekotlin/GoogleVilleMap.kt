@@ -156,7 +156,7 @@ class GoogleVilleMap(parentResources: Resources) {
         }
     }
 
-    fun highlightHouse(houseId: Int) {
+    fun highlightHouse(houseId: Int): Boolean {
         if (selectedHouse != null) {
             selectedHouse?.selected = false
             selectedHouse = null
@@ -179,5 +179,7 @@ class GoogleVilleMap(parentResources: Resources) {
                 break
             }
         }
+
+        return (selectedHouseMarker != null)
     }
 }
