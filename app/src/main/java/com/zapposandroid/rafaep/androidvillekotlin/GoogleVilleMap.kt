@@ -51,9 +51,7 @@ class GoogleVilleMap(parentResources: Resources) {
 
         selectedHouse = null
 
-        selectedSpotMarker = addMarker(it, MarkerType.SELECTED_SPOT, "Yo. Selected area!") //__RP change caption.
-
-        selectedSpotPosition = selectedSpotMarker?.position
+        setSelectedPosition(it)
 
         houseActions?.setHouseEditMode(false)
     }
@@ -77,8 +75,7 @@ class GoogleVilleMap(parentResources: Resources) {
         var letMapMarkIt = true
         when(markerInfo.type) {
             MarkerType.SELECTED_SPOT -> {
-                it.remove()
-                selectedSpotMarker = null
+                unSelectSpot()
                 letMapMarkIt = false
                 houseActions?.setHouseEditMode(false)
             }
@@ -116,6 +113,11 @@ class GoogleVilleMap(parentResources: Resources) {
             MarkerType.SELECTED_HOUSE -> selectedHouseBitmap
             else -> selectedSpotBitmap // Assumed MarkerType.SELECTED_SPOT
         })
+    }
+
+    fun setSelectedPosition(latLng: LatLng) {
+        selectedSpotMarker = addMarker(latLng, MarkerType.SELECTED_SPOT, "Selected area.") //__RP change caption.
+        selectedSpotPosition = selectedSpotMarker?.position
     }
 
     private fun addMarker(latLng: LatLng, type: MarkerType, caption: String, houseId: Int = 0): Marker? {

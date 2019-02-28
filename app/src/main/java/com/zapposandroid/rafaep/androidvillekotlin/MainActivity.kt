@@ -119,6 +119,9 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
         mainViewModel.cameraZoom = googleVilleMap?.mGoogleMap?.cameraPosition?.zoom ?: 0f
 
         mainViewModel.houseEditMode = houseEditMode
+
+        mainViewModel.selectedSpotLatitude = googleVilleMap?.selectedSpotPosition?.latitude ?: -1.0
+        mainViewModel.selectedSpotLongitude = googleVilleMap?.selectedSpotPosition?.longitude ?: -1.0
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -126,6 +129,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
         googleVilleMap?.onMapReady(googleMap)
         googleVilleMap?.houseActions = this
         googleVilleMap?.txtHouseName = findViewById(R.id.txt_house_name)
+
         val cameraZoom = mainViewModel.cameraZoom
         if (cameraZoom != 0f) {
             googleVilleMap?.mGoogleMap?.moveCamera(
@@ -261,6 +265,11 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
         }
         mainViewModel.allHouses = mAllHouses
         googleVilleMap?.setHouses(mAllHouses)
+
+        if (mainViewModel.selectedSpotLatitude != -1.0) {
+            googleVilleMap?.setSelectedPosition(LatLng(mainViewModel.selectedSpotLatitude, mainViewModel.selectedSpotLongitude))
+        }
+
         if (houseToHighlight != -1) {
             setHouseEditMode(googleVilleMap?.highlightHouse(houseToHighlight) ?: false)
             houseToHighlight = -1
