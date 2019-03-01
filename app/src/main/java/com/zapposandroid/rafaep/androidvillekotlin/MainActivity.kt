@@ -126,7 +126,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
 
     override fun onMapReady(googleMap: GoogleMap) {
         googleVilleMap = GoogleVilleMap(resources)
-        googleVilleMap?.onMapReady(googleMap)
+        googleVilleMap?.onMapReady(googleMap, mainViewModel)
         googleVilleMap?.houseActions = this
         googleVilleMap?.txtHouseName = findViewById(R.id.txt_house_name)
 
@@ -200,7 +200,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
                         slideDownAnimation?.start()
                         houseDialogTextField?.setText("")
                         mAllHouses?.add(newHouse)
-                        googleVilleMap?.addHouse(newHouse)
+                        googleVilleMap?.addHouse(newHouse, true)
                         setHouseEditMode(googleVilleMap?.highlightHouse(newHouse.id) ?: false)
                         googleVilleMap?.unSelectSpot()
                         setHouseEditMode(true)

@@ -28,6 +28,8 @@ class GoogleVilleMap(parentResources: Resources) {
     private var selectedSpotMarker: Marker? = null
     private var selectedHouseMarker: Marker? = null
 
+    var mainViewModel: MainViewModel? = null
+
     var txtHouseName: TextView? = null
     var houseActions: HouseActions? = null
 
@@ -64,6 +66,8 @@ class GoogleVilleMap(parentResources: Resources) {
     fun unSelectSpot() {
         if (selectedSpotMarker != null) {
             selectedSpotMarker?.remove()
+            mainViewModel?.selectedSpotLatitude = -1.0
+            mainViewModel?.selectedSpotLongitude = -1.0
         }
 
         selectedSpotMarker = null
@@ -73,17 +77,13 @@ class GoogleVilleMap(parentResources: Resources) {
     private val onMarkerClickListener = GoogleMap.OnMarkerClickListener {
         val markerInfo = it.tag as MarkerInfo
         var letMapMarkIt = true
+        unSelectSpot()
         when(markerInfo.type) {
             MarkerType.SELECTED_SPOT -> {
-                unSelectSpot()
                 letMapMarkIt = false
                 houseActions?.setHouseEditMode(false)
             }
             MarkerType.HOUSE, MarkerType.SELECTED_HOUSE -> {
-                if (selectedSpotMarker != null) {
-                    selectedSpotMarker?.remove()
-                    selectedSpotMarker = null
-                }
                 if (selectedHouseMarker != null) {
                     selectedHouseMarker?.setIcon(getMarkerIconFromType(MarkerType.HOUSE))
                     selectedHouseMarker = null
@@ -131,7 +131,8 @@ class GoogleVilleMap(parentResources: Resources) {
        return marker
     }
 
-    fun onMapReady(googleMap: GoogleMap) {
+    fun onMapReady(googleMap: GoogleMap, mainViewModel: MainViewModel) {
+        this.mainViewModel = mainViewModel
         mGoogleMap = googleMap
         allMarkers = mutableListOf()
 
@@ -157,27 +158,28 @@ class GoogleVilleMap(parentResources: Resources) {
         }
     }
 
-    fun addHouse(thisHouse: AVHouse) {
+    fun addHouse(thisHouse: AVHouse, showInfoWindow: Boolean = false) {
         if (mHouses == null) {
             mHouses = mutableListOf()
         }
         mHouses?.add(thisHouse)
         thisHouse?.associatedMapMarker = addMarker(thisHouse?.address.position, MarkerType.HOUSE, thisHouse.name, thisHouse.id)
+        if (showInfoWindow) {
+            thisHouse?.associatedMapMarker?.showInfoWindow()
+        }
     }
 
     fun updateHouse(thisHouse: AVHouse, updatedHouse: AVHouse) {
         thisHouse?.name = updatedHouse?.name
 
         thisHouse?.associatedMapMarker?.title = thisHouse.name
+        thisHouse?.associatedMapMarker?.showInfoWindow()
         txtHouseName?.text = thisHouse.name
     }
 
     fun deleteHouse(houseId: Int) {
         for (house in mHouses.orEmpty()) {
-            System.out.println("SEARCHING FOR DELETION")//__RP
-            System.out.println(houseId)//__RP
             if (house.id == houseId) {
-                System.out.println("FOUND!")//__RP
                 allMarkers?.remove(house.associatedMapMarker)
                 house.associatedMapMarker?.remove()
                 house.associatedMapMarker = null
@@ -203,6 +205,7 @@ class GoogleVilleMap(parentResources: Resources) {
                 }
 
                 selectedHouseMarker = selectedHouse?.associatedMapMarker
+                selectedHouseMarker?.showInfoWindow()
                 txtHouseName?.text = house.name
 
                 break
