@@ -23,7 +23,6 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 import com.google.android.gms.maps.CameraUpdateFactory
 
-
 class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, CoroutineScope {
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext

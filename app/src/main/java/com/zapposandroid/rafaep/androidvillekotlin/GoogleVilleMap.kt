@@ -116,7 +116,7 @@ class GoogleVilleMap(parentResources: Resources) {
     }
 
     fun setSelectedPosition(latLng: LatLng) {
-        selectedSpotMarker = addMarker(latLng, MarkerType.SELECTED_SPOT, "Selected area.") //__RP change caption.
+        selectedSpotMarker = addMarker(latLng, MarkerType.SELECTED_SPOT, "")
         selectedSpotPosition = selectedSpotMarker?.position
     }
 
