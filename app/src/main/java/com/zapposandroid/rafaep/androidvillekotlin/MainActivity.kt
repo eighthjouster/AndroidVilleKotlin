@@ -262,16 +262,11 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
         }
     }
 
-    private suspend fun retrieveMapData(houseToHighlight: Int) {
-        this.houseToHighlight = houseToHighlight
-        retrieveMapData()
-    }
-
     private suspend fun retrieveMapData() {
         mAllHouses = mainViewModel?.allHouses ?: serverComm?.getAllHouses()
-        if (houseToHighlight == -1) {
-            houseToHighlight = mainViewModel.houseToHighlight
-        }
+
+        houseToHighlight = mainViewModel.houseToHighlight
+
         mainViewModel.allHouses = mAllHouses
         googleVilleMap?.setHouses(mAllHouses)
 
