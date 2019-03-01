@@ -7,6 +7,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -243,12 +244,12 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
         if (houseEditMode) {
             addEditButton?.text = "Edit house"
             addEditDialogButton?.text = "Edit house"
-            deleteButton?.setTextColor(resources.getColor(R.color.red))
+            deleteButton?.setTextColor(ContextCompat.getColor(this, R.color.red))
         }
         else {
             addEditButton?.text = "Add house"
             addEditDialogButton?.text = "Add house"
-            deleteButton?.setTextColor(resources.getColor(R.color.softRed))
+            deleteButton?.setTextColor(ContextCompat.getColor(this, R.color.softRed))
         }
         deleteButton?.isEnabled = houseEditMode
     }
