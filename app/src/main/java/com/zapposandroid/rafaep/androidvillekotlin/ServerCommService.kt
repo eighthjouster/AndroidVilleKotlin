@@ -18,7 +18,7 @@ class ServerCommService : SafeApiCall() {
         service = retrofit.create(AndroidvilleAPIService::class.java)
     }
 
-    suspend fun getAllHouses(): List<AVHouse>? {
+    suspend fun getAllHouses(): MutableList<AVHouse>? {
         return safeCall(
             call = { service?.getAVHousesAsync()?.await() },
             errorMessage = "Error fetching all houses",

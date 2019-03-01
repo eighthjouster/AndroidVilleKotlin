@@ -14,7 +14,7 @@ interface AndroidvilleAPIService {
     fun getAVCityAsync(): Deferred<Response<AVCity>>
 
     @GET("/houses")
-    fun getAVHousesAsync(): Deferred<Response<List<AVHouse>>>
+    fun getAVHousesAsync(): Deferred<Response<MutableList<AVHouse>>>
 
     @POST("/houses")
     fun postAVHouseAsync(@Body house: AVHouse): Deferred<Response<AVHouse>>

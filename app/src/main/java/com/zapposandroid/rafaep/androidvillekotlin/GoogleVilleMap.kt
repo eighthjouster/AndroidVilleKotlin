@@ -33,7 +33,7 @@ class GoogleVilleMap(parentResources: Resources) {
 
     private var allMarkers: MutableList<Marker>? = null
 
-    private var mHouses: List<AVHouse>? = null
+    private var mHouses: MutableList<AVHouse>? = null
     var selectedHouse: AVHouse? = null
 
     var selectedSpotPosition: LatLng? = null
@@ -148,13 +148,40 @@ class GoogleVilleMap(parentResources: Resources) {
         mGoogleMap.setOnMarkerClickListener(onMarkerClickListener)
     }
 
-    fun setHouses(houses: List<AVHouse>?) {
-        mHouses = houses
+    fun setHouses(houses: MutableList<AVHouse>?) {
         for (thisMarker: Marker in allMarkers.orEmpty()) {
             thisMarker.remove()
         }
-        for (thisHouse: AVHouse in mHouses.orEmpty()) {
-            thisHouse.associatedMapMarker = addMarker(thisHouse.address.position, MarkerType.HOUSE, thisHouse.name, thisHouse.id)
+        for (thisHouse: AVHouse in houses.orEmpty()) {
+            addHouse(thisHouse)
+        }
+    }
+
+    fun addHouse(thisHouse: AVHouse) {
+        if (mHouses == null) {
+            mHouses = mutableListOf()
+        }
+        mHouses?.add(thisHouse)
+        thisHouse?.associatedMapMarker = addMarker(thisHouse?.address.position, MarkerType.HOUSE, thisHouse.name, thisHouse.id)
+    }
+
+    fun updateHouse(thisHouse: AVHouse, updatedHouse: AVHouse) {
+        thisHouse?.name = updatedHouse?.name
+
+        thisHouse?.associatedMapMarker?.title = thisHouse.name
+        txtHouseName?.text = thisHouse.name
+    }
+
+    fun deleteHouse(houseId: Int) {
+        for (house in mHouses.orEmpty()) {
+            System.out.println("SEARCHING FOR DELETION")//__RP
+            System.out.println(houseId)//__RP
+            if (house.id == houseId) {
+                System.out.println("FOUND!")//__RP
+                allMarkers?.remove(house.associatedMapMarker)
+                house.associatedMapMarker?.remove()
+                house.associatedMapMarker = null
+            }
         }
     }
 

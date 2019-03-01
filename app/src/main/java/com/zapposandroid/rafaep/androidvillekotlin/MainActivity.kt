@@ -44,7 +44,7 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
     private var selectedHouseName: TextView? = null
     private var houseEditMode = false
     private var houseToHighlight = -1
-    private var mAllHouses: List<AVHouse>? = null
+    private var mAllHouses: MutableList<AVHouse>? = null
 
     private var serverComm: ServerCommService? = null
 
@@ -164,12 +164,16 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
     fun deleteHouseBtnClick(v: View) {
         if (houseEditMode && googleVilleMap?.selectedHouse != null) {
             launch(Dispatchers.Main) {
-                serverComm?.deleteHouse(googleVilleMap?.selectedHouse as AVHouse)
-                houseDialogTextField?.setText("")
-                selectedHouseName?.text = ""
-                googleVilleMap?.unSelectHouse()
-                setHouseEditMode(false)
-                retrieveMapData()
+                val deletedHouse = serverComm?.deleteHouse(googleVilleMap?.selectedHouse as AVHouse)
+
+                if (deletedHouse != null) {
+                    houseDialogTextField?.setText("")
+                    selectedHouseName?.text = ""
+                    mAllHouses?.remove(googleVilleMap?.selectedHouse as AVHouse)
+                    googleVilleMap?.deleteHouse((googleVilleMap?.selectedHouse as AVHouse).id)
+                    googleVilleMap?.unSelectHouse()
+                    setHouseEditMode(false)
+                }
             }
         }
     }
@@ -188,16 +192,19 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
                 val newHouse = AVHouse(houseId, houseName, AVAddress(googleVilleMap?.selectedSpotPosition ?: LatLng(0.0, 0.0)), false, null)
 
                 launch(Dispatchers.Main) {
-                    System.out.println("ADDING A NEW HOUSE TO THE SERVER ====================")
-                    serverComm?.addHouse(newHouse)
+                    val newHouse = serverComm?.addHouse(newHouse)
 
-                    dismissSoftKeyboard()
-                    cancelDialogButton?.visibility = View.INVISIBLE
-                    slideDownAnimation?.start()
-                    houseDialogTextField?.setText("")
-                    retrieveMapData(houseId)
-                    googleVilleMap?.unSelectSpot()
-                    setHouseEditMode(true)
+                    if (newHouse != null) {
+                        dismissSoftKeyboard()
+                        cancelDialogButton?.visibility = View.INVISIBLE
+                        slideDownAnimation?.start()
+                        houseDialogTextField?.setText("")
+                        mAllHouses?.add(newHouse)
+                        googleVilleMap?.addHouse(newHouse)
+                        setHouseEditMode(googleVilleMap?.highlightHouse(newHouse.id) ?: false)
+                        googleVilleMap?.unSelectSpot()
+                        setHouseEditMode(true)
+                    }
                 }
             }
             else {
@@ -206,12 +213,14 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
                     editHouse.name = houseName
 
                     launch(Dispatchers.Main) {
-                        serverComm?.updateHouse(editHouse)
-                        dismissSoftKeyboard()
-                        slideDownAnimation?.start()
-                        houseDialogTextField?.setText("")
-                        googleVilleMap?.unSelectHouse()
-                        retrieveMapData(editHouse.id)
+                        val editedHouse = serverComm?.updateHouse(editHouse)
+
+                        if (editedHouse != null) {
+                            dismissSoftKeyboard()
+                            slideDownAnimation?.start()
+                            houseDialogTextField?.setText("")
+                            googleVilleMap?.updateHouse(editHouse, editedHouse)
+                        }
                     }
                 }
             }
@@ -283,7 +292,6 @@ class MainActivity : HouseActions, AppCompatActivity(), OnMapReadyCallback, Coro
             }
         }
     }
-
 }
 
 interface HouseActions {
