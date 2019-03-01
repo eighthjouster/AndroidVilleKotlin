@@ -136,12 +136,8 @@ class GoogleVilleMap(parentResources: Resources) {
         mGoogleMap = googleMap
         allMarkers = mutableListOf()
 
-        // Add a marker in Sydney and move the camera
+        // Add a marker in Las Vegas and move the camera
         val lasVegasLocation = LatLng(36.1728546, -115.1390953)
-        addMarker(lasVegasLocation, MarkerType.HOUSE, "Marker in Las Vegas!")
-
-        val lasVegasLocationABitBelow = LatLng(36.1719972, -115.1390738)
-        addMarker(lasVegasLocationABitBelow, MarkerType.HOUSE, "Marker in Las Vegas 2!")
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(lasVegasLocation))
         mGoogleMap.animateCamera( CameraUpdateFactory.zoomTo( 16.5f ) )
